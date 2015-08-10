@@ -13,6 +13,10 @@ object Boot extends App {
 		
 	/** ActorSystem to manage HttpRoutingActor and it's children */
 	private val httpRoutingActor = system.actorOf(Props(new HttpRoutingActor), "http-service")
+
+	val conf = ConfigFactory.load()
+	val onOrOff = conf.getString("spray.can.server.transparent-head-requests")
+	println(onOrOff)
 	
 	implicit val timeout = Timeout(5.seconds)	
 	IO(Http) ? Http.Bind(httpRoutingActor, interface = "localhost", port = 9002)
