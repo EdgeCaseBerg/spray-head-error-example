@@ -25,7 +25,7 @@ class RoutesTest extends FlatSpec with MyRoutes with Matchers with ScalatestRout
 		}
 	}
 
-	"A Head Route" should "return 200 from the server if defined when the route is sealed" in {
+	it should "return 200 from the server if defined when the route is sealed" in {
 		Head("/v0/healthcheck") ~> sealRoute(myRoutes) ~> check {
 
 			val conf = ConfigFactory.load()
@@ -33,6 +33,26 @@ class RoutesTest extends FlatSpec with MyRoutes with Matchers with ScalatestRout
 			println(onOrOff)
 
 			assertResult(StatusCodes.OK) { status }
+		}
+	}
+
+	it should "not work on a Get route" in {
+		Head("/v0/stuff") ~> myRoutes ~> check {
+			val conf = ConfigFactory.load()
+			val onOrOff = conf.getString("spray.can.server.transparent-head-requests")
+			println(onOrOff)
+
+			handled == false
+		}
+	}
+
+	it should "not work on a Get route when route is sealed" in {
+		Head("/v0/stuff") ~> sealRoute(myRoutes) ~> check {
+			val conf = ConfigFactory.load()
+			val onOrOff = conf.getString("spray.can.server.transparent-head-requests")
+			println(onOrOff)
+
+			assertResult(StatusCodes.NotFound) { status }
 		}
 	}
 
